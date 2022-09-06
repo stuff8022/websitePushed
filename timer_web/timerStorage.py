@@ -44,7 +44,8 @@ class timer:
         connection = sqlite3.connect(databaseLoc())
         connection.execute("UPDATE timers SET endTime=:dateTime WHERE ID=:ID", {"ID": self.ID, "dateTime": math.ceil(unixTime * 1000)})
         connection.commit()
-        connection.execute()
+        connection.close()
+        self.endTime = int(unixTime * 1000)
 
 
 def newTimer(password):

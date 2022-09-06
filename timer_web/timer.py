@@ -56,7 +56,7 @@ def roomTimes(ID):
 @app.route("/timer/<int:ID>/cred", methods=["GET", "POST"])
 def cred(ID):
     if request.method == "POST":
-        password = request.form("password")
+        password = request.form["password"]
         timer = timerStorage.timer(ID)
         if timer.controlTimer(password) == True:
             session["timer"] = ID
@@ -64,14 +64,26 @@ def cred(ID):
 @app.route("/timer/<int:ID>/start", methods=["GET", "POST"])
 def start(ID):
     if session.get("timer"):
-        seconds = request.form("seconds")
-        minutes = request.form("minutes")
-        hours = request.form("hours")
-        days = request.form("days")
-        weeks = request.form("weeks")
+        endTime = 0
+        seconds = request.form["seconds"]
+        minutes = request.form["minutes"]
+        hours = request.form["hours"]
+        days = request.form["days"]
+        weeks = request.form["weeks"]
         timer = timerStorage.timer(session["timer"])
-        endTime = seconds + (minutes * 60) + (hours * 60 * 60) + (days * 60 * 60 * 24) + (weeks * 60 * 60 * 24 * 7)
-        timer.startTimer(endTime - time.time())
+        if bool(seconds):
+            endTime = endTime + float(seconds)
+        if bool(minutes):
+            endTime = endTime + (float(minutes) * 60)
+        if bool(hours):
+            endTime = endTime + (float(hours) * 60 * 60)
+        if bool(days):
+            endTime = endTime + (float(days) * 60 * 60 * 24)
+        if bool(weeks):
+            endTime = endTime + (float(weeks) * 60 * 60 * 24 * 7)
+
+        timer.startTimer(endTime + time.time())
+        return "done"
 
 
 @app.route("/newTimer", methods=["GET", "POST"])
