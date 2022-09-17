@@ -30,7 +30,7 @@ class timer:
         return self.password == hashPassword(self.ID, password)
 
 
-    def removeTimer(self):
+    def removeTimer(self): #removes the timer
         self.removeTimer(self.ID)
         connection = sqlite3.connect(databaseLoc())
         connection.execute("DELETE FROM timers WHERE ID=:ID", {"ID":self.ID})
@@ -40,7 +40,7 @@ class timer:
         self.ID = None
         self.exist = False
 
-    def startTimer(self, unixTime):
+    def startTimer(self, unixTime): #starts or edits the timer
         connection = sqlite3.connect(databaseLoc())
         connection.execute("UPDATE timers SET endTime=:dateTime WHERE ID=:ID", {"ID": self.ID, "dateTime": math.ceil(unixTime * 1000)})
         connection.commit()
@@ -48,7 +48,7 @@ class timer:
         self.endTime = int(unixTime * 1000)
 
 
-def newTimer(password):
+def newTimer(password): #creates the timer
     connection = sqlite3.connect(databaseLoc())
     connection.execute("INSERT INTO timers (password, endTime) VALUES (:password, :endTime)", {"password": password, "endTime": math.ceil(time.time() * 1000)}) #datetime is stored as unix time to prevent timezone issues
     connection.commit()

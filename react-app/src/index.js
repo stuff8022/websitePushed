@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  //return "http://localhost:5000";
-  return "";
+  return "http://localhost:5000";
+  //return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -38,26 +38,6 @@ const getTimerEndDate = async (setData, timerID) =>{ //gets the time for the end
   
 }
 
-const CurrentLoggedInTimerGet = async (setData) =>{ //gets the time for the end of the countdown
-  try{
-    const resp = await fetch(mainUrl() +"/getCurrentTimerID");
-
-    const data = await resp.json();
-  
-    setData(data);
-  }catch(err){
-    //alert(err);
-  }
-  
-}
-
-function CurrentTimer(){
-  const [data, setData] = useState({"ID": NaN})
-  if(isNaN(data["ID"])){
-    CurrentLoggedInTimerGet(setData);
-  }
-  return data;
-}
 
 function TimeOffset(){ //finds the offset between what the computer thinks the time is as well as the server
   const [data, setData] = useState({"datetime": NaN, "computerTime": NaN}) //uses states to get value out of async function
@@ -133,35 +113,32 @@ function DisplayTimeLeft(time){ //makes the value of how long is left of the tim
 
 }
 
-function Timer(props){
+function Timer(props){ //gets the end time then formats it in a nice way
   const localEndTime = OffsetEndTime(props)
   const [remainTime, getRemainTime] = useState(0);
   useEffect(() =>{
     const refreshTimer = setInterval(() =>{
-      getRemainTime(TimeLeft(localEndTime));
+      getRemainTime(TimeLeft(localEndTime)); //set inteval used to ask for the end time repeatably to see if there are any changes
     }, 1)
     return () => clearInterval(refreshTimer);
   });
-  //return <DisplayTimeLeft time={remainTime}/>
   return DisplayTimeLeft(remainTime);
 }
 
-function ControlButton(props){
-  return <button>Control Timer</button>
-}
 
-function TimerPage(props){
+function TimerPage(props){ //displays the timer as well as anything else relating to the timer
   
   const [cookies, setCookie, removeCookie] = useCookies(["ID"]);
-  if(cookies["ID"] == props.ID){
+  if(cookies["ID"] == props.ID){ //if the client is in control of the timer (can edit how long the timer times for)
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
     <br></br>
     <h1>Timer number {props.ID}</h1>
     <br></br>
     <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
     <TimerAmount ID={props.ID}/></>;
-  }else{
-    return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button><ControlButton/>
+  }else{ //if the client isn't in control of the timer
+    return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
+    <button onClick={() => props.setLoc({"Loc": "controlTimer", "ID": props.ID, "error": ""})}>Control</button>
     <br></br>
     <h1>Timer number {props.ID}</h1>
     <br></br>
@@ -169,10 +146,11 @@ function TimerPage(props){
   }
 }
 
-function TimerAmount(props){
+function TimerAmount(props){ //used to set how long the timer times for
   const onSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target)
+    //formData.append("timeOffSet", TimeOffset());
     axios.post(mainUrl() + "/timer/" + props.ID + "/start", formData, {withCredentials: true})
     .then((response) => {
       console.log(response.data)
@@ -189,7 +167,7 @@ function TimerAmount(props){
   <button>Start</button></form>
 }
 
-function Home(props){
+function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
   const [chosenID,setID] = useState("")
   const handleInput = event => {
     setID(event.target.value);
@@ -207,17 +185,14 @@ function Home(props){
   <button onClick={() => props.setLoc({"Loc": "Timer", "ID": Number(chosenID)})}>Done</button></>
 }
 
-function NewTimer(props){
-  const [cookies, setCookie, removeCookie] = useCookies(["ID"]);
+function NewTimer(props){ //creates the new timer
   const onSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target)
     axios.post(mainUrl() + "/newTimer", formData, {withCredentials: true})
     .then((response) => {
       console.log(response.data)
-      //setCookie("ID",response.data["ID"])
-      //setCookie("session", response.data["session"])
-      props.setLoc({"Loc": "Timer", "ID": response.data})
+      props.setLoc({"Loc": "Timer", "ID": response.data}) //response.data is the ID of the new timer
     })
     .catch(() => console.log("Didn't post successfully"))
   }
@@ -229,6 +204,38 @@ function NewTimer(props){
   </form>
 }
 
+function TimerLogin(props){ //allows the user to control the timer if there is a right password provided
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target)
+    axios.post(mainUrl() + "/timer/" + props.ID + "/cred", formData, {withCredentials: true})
+    .then((response) => {
+      console.log(response.data)
+      if(response.data == "Invalid"){
+        props.setLoc({"Loc": "controlTimer", "ID": props.ID, "error": "Invalid"})
+      }else{
+        props.setLoc({"Loc": "Timer", "ID": props.ID})
+      }
+    })
+    .catch(() => console.log("Didn't post successfully"))
+  }
+
+  if(props.error == ""){
+    return<form method="post" name="form" onSubmit={onSubmit}>
+    <h1>Timer Control</h1><br></br>
+    <input type="password" id="password" name="password"></input>
+    <button type="submit">control</button>
+    </form>
+  }else{
+    return<form method="post" name="form" onSubmit={onSubmit}>
+    <h1>Timer Control</h1><br></br>
+    <input type="password" id="password" name="password"></input><br></br>
+    <small>Invalid password</small>
+    <button type="submit">control</button>
+    </form>
+  }
+}
+
 function App(){
   const [appLoc, setLoc] = useState({"Loc": "Home"}) //this state would be where the user wants to be in the react app
   switch(appLoc["Loc"]){
@@ -238,6 +245,8 @@ function App(){
       return <TimerPage ID={appLoc["ID"]} setLoc={setLoc}/>
     case "newTimer":
       return <NewTimer setLoc={setLoc}/>
+    case "controlTimer":
+      return <TimerLogin setLoc={setLoc} ID={appLoc["ID"]} error={appLoc["error"]}/>
     default:
       return <TimerAmount/>
   }

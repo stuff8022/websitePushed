@@ -40,31 +40,38 @@ def mainPage():
     return render_template("/build/index.html")
 
 @app.route("/")
-def renderPage():
+def renderPage(): #provides the react page
     return mainPage()
 
 @app.route("/serverTime")
-def currentTime():
+def currentTime(): #gets the current time of the server 
     currentDatetime = math.ceil(time.time() * 1000)
     return {"datetime": currentDatetime}
 
 @app.route("/timer/<int:ID>")
-def roomTimes(ID):
+def endTimeTimer(ID): #gets the endtime of a specific timer
     timer = timerStorage.timer(ID)
     return {"endTime": timer.endTime}
 
 @app.route("/timer/<int:ID>/cred", methods=["GET", "POST"])
-def cred(ID):
+def cred(ID): #allows the client to take control of a timer with the right password
     if request.method == "POST":
         password = request.form["password"]
         timer = timerStorage.timer(ID)
         if timer.controlTimer(password) == True:
             session["timer"] = ID
+            resp = make_response(str(timer.ID))
+            resp.set_cookie('ID',str(timer.ID))
+        else:
+            resp = make_response("Invalid")
+
+        return resp
 
 @app.route("/timer/<int:ID>/start", methods=["GET", "POST"])
-def start(ID):
+def start(ID): #handles the start and editing of a timer
     if session.get("timer"):
         endTime = 0
+        #offset = request.form["timeOffSet"]
         seconds = request.form["seconds"]
         minutes = request.form["minutes"]
         hours = request.form["hours"]
@@ -82,27 +89,20 @@ def start(ID):
         if bool(weeks):
             endTime = endTime + (float(weeks) * 60 * 60 * 24 * 7)
 
+        #timer.startTimer(endTime + time.time() - float(offset))
         timer.startTimer(endTime + time.time())
         return "done"
 
 
-@app.route("/newTimer", methods=["GET", "POST"])
+@app.route("/newTimer", methods=["GET", "POST"]) #handles the creation of a new timer
 def newTimer():
     if request.method == "POST":
         timer = timerStorage.newTimer(request.form["password"])
         session["timer"] = timer.ID
         resp = make_response(str(timer.ID))
         resp.set_cookie('ID',str(timer.ID))
-        #return {"ID": timer.ID, "session": session.values(timer.ID)}
         return resp
         
-
-@app.route("/getCurrentTimerID")
-def currentTimerID():
-    if session.get("timer"):
-        return {"ID": session["timer"]}
-    else:
-        return {"ID": nan}
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5000)
