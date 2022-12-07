@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  return "http://localhost:5000";
-  //return "";
+  //return "http://localhost:5000";
+  return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -49,12 +49,19 @@ function TimeOffset(){ //finds the offset between what the computer thinks the t
 }
 
 function EndTime(props){ //returns what the end time is
+  var Timeoffset = TimeOffset();
+  var refresh;
   const [data, setData] = useState({"endTime": NaN}) //uses states to get value out of async function
+  if (TimeLeft(data["endTime"] - Timeoffset) > 0){
+    refresh = 30;
+  }else{
+    refresh = 1000;
+  }
   useEffect(() =>{
     const refreshTimer = setInterval(() =>{
       getTimerEndDate(setData, props.ID);
-      console.log(data["endTime"])
-    }, 30)
+      console.log(refresh)
+    }, refresh)
     return () => clearInterval(refreshTimer);
   });
   return data["endTime"];
