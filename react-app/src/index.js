@@ -52,13 +52,13 @@ function EndTime(props){ //returns what the end time is
   var Timeoffset = TimeOffset();
   var refresh;
   const [data, setData] = useState({"endTime": NaN}) //uses states to get value out of async function
-  if (TimeLeft(data["endTime"] - Timeoffset) > 0){
+  if (TimeLeft(data["endTime"] - Timeoffset) > 0){ //this varies the setInteval rate to prevent CPU going 100% once timer goes to 0
     refresh = 30;
   }else{
     refresh = 1000;
   }
   useEffect(() =>{
-    const refreshTimer = setInterval(() =>{
+    const refreshTimer = setInterval(() =>{ //Updates to any change to the timer
       getTimerEndDate(setData, props.ID);
       console.log(refresh)
     }, refresh)
@@ -154,7 +154,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
 }
 
 function TimerAmount(props){ //used to set how long the timer times for
-  const onSubmit = (e) => {
+  const onSubmit = (e) => { //behaviour of sending the form to the server
     e.preventDefault();
     const formData = new FormData(e.target)
     //formData.append("timeOffSet", TimeOffset());
@@ -227,7 +227,7 @@ function TimerLogin(props){ //allows the user to control the timer if there is a
     .catch(() => console.log("Didn't post successfully"))
   }
 
-  if(props.error == ""){
+  if(props.error == ""){//if is for what happens if there isn't or is an error with the password
     return<form method="post" name="form" onSubmit={onSubmit}>
     <h1>Timer Control</h1><br></br>
     <input type="password" id="password" name="password"></input>
