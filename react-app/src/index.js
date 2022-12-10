@@ -53,7 +53,7 @@ function EndTime(props){ //returns what the end time is
   var refresh;
   const [data, setData] = useState({"endTime": NaN}) //uses states to get value out of async function
   if (TimeLeft(data["endTime"] - Timeoffset) > 0){ //this varies the setInteval rate to prevent CPU going 100% once timer goes to 0
-    refresh = 200;
+    refresh = 100;
   }else{
     refresh = 1000;
   }
@@ -139,7 +139,7 @@ function Timer(props){ //gets the end time then formats it in a nice way
   useEffect(() =>{
     const refreshTimer = setInterval(() =>{
       getRemainTime(TimeLeft(localEndTime)); //set inteval used to ask for the end time repeatably to see if there are any changes
-    }, 200)
+    }, 100)
     return () => clearInterval(refreshTimer);
   });
   return DisplayTimeLeft(remainTime);
@@ -179,11 +179,11 @@ function TimerAmount(props){ //used to set how long the timer times for
   }
 
   return <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
-  seconds: <input id="seconds" name="seconds"></input>
-  minutes: <input id="minutes" name="minutes"></input>
-  hours: <input id="hours" name="hours"></input>
-  days: <input id="days" name="days"></input>
-  weeks: <input id="weeks" name="weeks"></input><br></br>
+  seconds: <input id="seconds" type="number" name="seconds"></input>
+  minutes: <input id="minutes" type="number" name="minutes"></input>
+  hours: <input id="hours" type="number" name="hours"></input>
+  days: <input id="days" type="number" name="days"></input>
+  weeks: <input id="weeks" type="number" name="weeks"></input><br></br>
   <button>Start</button></form>
 }
 
@@ -219,7 +219,7 @@ function NewTimer(props){ //creates the new timer
   return<><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button><br>
   </br><form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
     <h1>New Timer</h1><br></br>
-    <input type="password" id="password" name="password"></input>
+    <input type="password" id="password" name="password" placeholder="password"></input>
     <button type="submit">create</button>
   </form></>
 }
@@ -241,13 +241,13 @@ function TimerLogin(props){ //allows the user to control the timer if there is a
   if(props.error == undefined){//if is for what happens if there isn't or is an error with the password
     return<><form method="post" name="form" onSubmit={onSubmit}>
     <h2>Timer Control</h2><br></br>
-    <input type="password" id="password" name="password"></input><br></br>
+    <input type="password" id="password" name="password" placeholder="password"></input><br></br>
     <button type="submit">control</button>
     </form></>
   }else{ //if password is incorrect
     return<><form method="post" name="form" onSubmit={onSubmit}>
     <h2>Timer Control</h2><br></br>
-    <input type="password" id="password" name="password"></input><br></br>
+    <input type="password" id="password" name="password" placeholder="password"></input><br></br>
     <button type="submit">control</button><br></br>
     <small>Invalid password</small>
     </form></>
