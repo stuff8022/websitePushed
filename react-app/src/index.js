@@ -103,6 +103,9 @@ function timeLeftBreak(timeM){//this calculates the weeks days hours minutes and
   var seconds = leftover * 60; //calulates the amount of seconds left
   leftover = seconds % 1;
   seconds = Math.round(seconds);
+  if(seconds == 60){
+    seconds = 59;
+  }
   return {"seconds": seconds, "minutes": minutes, "hours": hours, "days": days, "weeks": weeks};
 }
 
