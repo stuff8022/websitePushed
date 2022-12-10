@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  //return "http://localhost:5000";
-  return "";
+  return "http://localhost:5000";
+  //return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -128,8 +128,9 @@ function Timer(props){ //gets the end time then formats it in a nice way
   const [remainTime, getRemainTime] = useState(0);
   useEffect(() =>{
     const refreshTimer = setInterval(() =>{
+      
       getRemainTime(TimeLeft(localEndTime)); //set inteval used to ask for the end time repeatably to see if there are any changes
-    }, 1)
+    }, 10)
     return () => clearInterval(refreshTimer);
   });
   return DisplayTimeLeft(remainTime);
