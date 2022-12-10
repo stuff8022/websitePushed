@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  //return "http://localhost:5000";
-  return "";
+  return "http://localhost:5000";
+  //return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -53,7 +53,7 @@ function EndTime(props){ //returns what the end time is
   var refresh;
   const [data, setData] = useState({"endTime": NaN}) //uses states to get value out of async function
   if (TimeLeft(data["endTime"] - Timeoffset) > 0){ //this varies the setInteval rate to prevent CPU going 100% once timer goes to 0
-    refresh = 30;
+    refresh = 100;
   }else{
     refresh = 1000;
   }
@@ -130,7 +130,7 @@ function Timer(props){ //gets the end time then formats it in a nice way
     const refreshTimer = setInterval(() =>{
       
       getRemainTime(TimeLeft(localEndTime)); //set inteval used to ask for the end time repeatably to see if there are any changes
-    }, 10)
+    }, 100)
     return () => clearInterval(refreshTimer);
   });
   return DisplayTimeLeft(remainTime);
