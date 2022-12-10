@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  return "http://localhost:5000";
-  //return "";
+  //return "http://localhost:5000";
+  return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
