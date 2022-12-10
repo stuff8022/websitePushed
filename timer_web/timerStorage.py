@@ -6,7 +6,7 @@ import usefulFunctions
 import time
 
 def hashPassword(ID, password): #this hashes the password, learnt in https://docs.python.org/3/library/hashlib.html
-    return str(hashlib.sha224(b"" + str(ID).encode() + str(password).encode()).hexdigest())
+    return str(hashlib.sha512(b"c6-wY9$Ka3zh[c$#m[CHaTAF_f&WZ&GCwM$Yq6Jg" + str(ID).encode() + str(password).encode()).hexdigest())
 
 def databaseLoc():
     return "roomDB.db"

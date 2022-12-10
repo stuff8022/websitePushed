@@ -51,7 +51,10 @@ def currentTime(): #gets the current time of the server
 @app.route("/timer/<int:ID>")
 def endTimeTimer(ID): #gets the endtime of a specific timer
     timer = timerStorage.timer(ID)
-    return {"endTime": timer.endTime}
+    if timer.exist: #if the timer exists
+        return {"endTime": timer.endTime}
+    else: #nan returned when timer does not exist
+        return {"endTime": nan}
 
 @app.route("/timer/<int:ID>/cred", methods=["GET", "POST"])
 def cred(ID): #allows the client to take control of a timer with the right password
