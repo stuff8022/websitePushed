@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  //return "http://localhost:5000";
-  return "";
+  return "http://localhost:5000";
+  //return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -83,7 +83,7 @@ function TimeLeft(localEndTime){ //works out how long is left of the time
 
 
 function timeLeftBreak(timeM){//this calculates the weeks days hours minutes and seconds it will take for the bid to close
-  timeM = timeM / 1000; //makes it into seconds only
+  timeM = parseInt(timeM / 1000); //makes it into seconds only
   var weeks = timeM / (60*60*24*7); //gets the number of weeks
   var leftover = weeks % 1;
   weeks = weeks - leftover;
