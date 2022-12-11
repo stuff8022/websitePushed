@@ -41,9 +41,12 @@ const getTimerEndDate = async (setData, timerID) =>{ //gets the time for the end
 
 function TimeOffset(){ //finds the offset between what the computer thinks the time is as well as the server
   const [data, setData] = useState({"datetime": NaN, "computerTime": NaN}) //uses states to get value out of async function
-  if(isNaN(data["datetime"])){
+  useEffect(() =>{
+    const refreshTimeOffset = setInterval(() =>{ //Updates to any change to the end time
     getServerComputerDateTime(setData);
-  }
+  }, 1000)
+  return () => clearInterval(refreshTimeOffset);
+});
   var timeOffset = data["datetime"] - data["computerTime"];
   return timeOffset;
 }
@@ -58,10 +61,10 @@ function EndTime(props){ //returns what the end time is
     refresh = 1000;
   }
   useEffect(() =>{
-    const refreshTimer = setInterval(() =>{ //Updates to any change to the timer
+    const refreshEndTime = setInterval(() =>{ //Updates to any change to the end time
       getTimerEndDate(setData, props.ID);
     }, refresh)
-    return () => clearInterval(refreshTimer);
+    return () => clearInterval(refreshEndTime);
   });
   return data["endTime"];
 }
@@ -106,8 +109,21 @@ function timeLeftBreak(timeM){//this calculates the weeks days hours minutes and
     var seconds = leftover * 60; //calulates the amount of seconds left
     leftover = seconds % 1;
     seconds = Math.round(seconds);
-    if(seconds == 60){
-      seconds = 59;
+    if(seconds == 60){ //makes it impossible to show 60 seconds
+      seconds = 0;
+      minutes = minutes + 1;
+      if(minutes == 60){
+        minutes = 0;
+        hours = hours + 1;
+        if(hours == 24){
+          hours = 0;
+          days = days + 1;
+          if(days == 7){
+            days = 0;
+            weeks = weeks = 1;
+          }
+        }
+      }
     }
   }
   else{ //deals with nan
