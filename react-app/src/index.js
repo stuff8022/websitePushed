@@ -38,42 +38,23 @@ const getTimerEndDate = async (setData, timerID) =>{ //gets the time for the end
   
 }
 
-
-function TimeOffset(){ //finds the offset between what the computer thinks the time is as well as the server
-  const [data, setData] = useState({"datetime": NaN, "computerTime": NaN}) //uses states to get value out of async function
-  useEffect(() =>{
-    const refreshTimeOffset = setInterval(() =>{ //Updates to any change to the end time
-    getServerComputerDateTime(setData);
-    console.log("ComputerTime")
-  }, 1000)
-  return () => clearInterval(refreshTimeOffset);
-});
-  var timeOffset = data["datetime"] - data["computerTime"];
-  return timeOffset;
-}
-
-function EndTime(props){ //returns what the end time is
-  var Timeoffset = TimeOffset();
-  var refresh;
-  const [data, setData] = useState({"endTime": NaN}) //uses states to get value out of async function
-  if (TimeLeft(data["endTime"] - Timeoffset) > 0){ //this varies the setInteval rate to prevent CPU going 100% once timer goes to 0
-    refresh = 100;
+function OffsetEndTime(props){
+  var refresh = 1000;
+  const [endTimeData, setEndTime] = useState({"endTime": NaN})
+  const [offsetData, setOffsetData] = useState({"datetime": NaN, "computerTime": NaN}) //uses states to get value out of async function
+  if (TimeLeft(endTimeData["endTime"] - (offsetData["datetime"] - offsetData["computerTime"])) > 0){ //this varies the setInteval rate to prevent CPU going 100% once timer goes to 0
+    refresh = 105;
   }else{
     refresh = 1000;
   }
   useEffect(() =>{
-    const refreshEndTime = setInterval(() =>{ //Updates to any change to the end time
-      getTimerEndDate(setData, props.ID);
-      console.log("EndTime")
+    const refreshTimeOffset = setInterval(() =>{ //Updates to any change to the end time
+      getServerComputerDateTime(setOffsetData); //gets offset data which is used to find the difference between server time and client time
+      getTimerEndDate(setEndTime, props.ID); //gets the recorded end time from the server
     }, refresh)
-    return () => clearInterval(refreshEndTime);
+    return () => clearInterval(refreshTimeOffset);
   });
-  return data["endTime"];
-}
-
-function OffsetEndTime(props){ //returns what the end time is taking into account any difference in believed time between the server as well as the computer
-  var CompDateTime = EndTime(props) - TimeOffset();
-  return CompDateTime;
+  return endTimeData["endTime"] - (offsetData["datetime"] - offsetData["computerTime"]); //finds the difference between client time and server time and uses that to offset the end time
 }
 
 function TimeLeft(localEndTime){ //works out how long is left of the time
@@ -141,12 +122,6 @@ function timeLeftBreak(timeM){//this calculates the weeks days hours minutes and
 
 function DisplayTimeLeft(time){ //makes the value of how long is left of the timer in a presentable manner that can be displayed to the user
   var timeLeftBreakdown = timeLeftBreak(time);
-  var presentString = ""
-  presentString = presentString + String(timeLeftBreakdown["seconds"])+ " seconds, "
-  presentString = presentString + String(timeLeftBreakdown["minutes"]) + " minutes, "
-  presentString = presentString + String(timeLeftBreakdown["hours"]) + " hours, "
-  presentString = presentString + String(timeLeftBreakdown["days"]) + " days, "
-  presentString = presentString + String(timeLeftBreakdown["weeks"]) + " weeks"
   return <table align="center" cellPadding={15}>
     <tr>
       <th>Seconds</th>
@@ -216,22 +191,24 @@ function TimerAmount(props){ //used to set how long the timer times for
   return <>
     <h2>Change Timer</h2>
     <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
-      <table align="center">
-        <tr>
-          <th>Seconds</th>
-          <th>Minutes</th>
-          <th>Hours</th>
-          <th>Days</th>
-          <th>Weeks</th>
-        </tr>
-        <tr>
-          <td><input id="seconds" type="number" name="seconds"></input></td>
-          <td><input id="minutes" type="number" name="minutes"></input></td>
-          <td><input id="hours" type="number" name="hours"></input></td>
-          <td><input id="days" type="number" name="days"></input></td>
-          <td><input id="weeks" type="number" name="weeks"></input></td>
-        </tr>
+    <div class="col-xs-2">
+        <table align="center">
+          <tr>
+            <th>Seconds</th>
+            <th>Minutes</th>
+            <th>Hours</th>
+            <th>Days</th>
+            <th>Weeks</th>
+          </tr>
+          <tr>
+            <td><input className="form-control" id="seconds" type="number" name="seconds" size="2"></input></td>
+            <td><input className="form-control" id="minutes" type="number" name="minutes" size="2"></input></td>
+            <td><input className="form-control" id="hours" type="number" name="hours"size="2"></input></td>
+            <td><input className="form-control" id="days" type="number" name="days" size="2"></input></td>
+            <td><input className="form-control" id="weeks" type="number" name="weeks" size="4"></input></td>
+          </tr>
       </table>
+      </div>
       <button>Start Timer</button>
     </form>
   </>
@@ -309,8 +286,6 @@ function TimerExist(ID){
   if(isNaN(data["timerExist"])){
     checkTimerExist(setData, ID)
   }
-  console.log(data)
-  console.log(ID)
   return data["timerExist"];
 }
 
