@@ -160,7 +160,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
     <body className="text-center">
       <br></br>
-      <h1>Timer name {props.ID}</h1>
+      <h1>Timer name: {props.ID}</h1>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
       <TimerAmount ID={props.ID}/>
@@ -169,7 +169,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
     <body className="text-center">
       <br></br>
-      <h1>Timer name {props.ID}</h1>
+      <h1>Timer name: {props.ID}</h1>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
       <TimerLogin ID={props.ID} setLoc={props.setLoc} setCookie={setCookie}/>
@@ -201,11 +201,11 @@ function TimerAmount(props){ //used to set how long the timer times for
             <th>Weeks</th>
           </tr>
           <tr>
-            <td><input className="form-control" id="seconds" type="number" name="seconds" size="2"></input></td>
-            <td><input className="form-control" id="minutes" type="number" name="minutes" size="2"></input></td>
-            <td><input className="form-control" id="hours" type="number" name="hours"size="2"></input></td>
-            <td><input className="form-control" id="days" type="number" name="days" size="2"></input></td>
-            <td><input className="form-control" id="weeks" type="number" name="weeks" size="4"></input></td>
+            <td><input className="form-control" id="seconds" type="number" name="seconds" min="0"></input></td>
+            <td><input className="form-control" id="minutes" type="number" name="minutes" min="0"></input></td>
+            <td><input className="form-control" id="hours" type="number" name="hours" min="0"></input></td>
+            <td><input className="form-control" id="days" type="number" name="days" min="0"></input></td>
+            <td><input className="form-control" id="weeks" type="number" name="weeks" min="0"></input></td>
           </tr>
       </table>
       </div>
@@ -314,7 +314,7 @@ function Home(props){ //the home page that allows the creation of timer, finding
   return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button><button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Timer in control</button>
   <body className="text-center">
     <br></br>
-    <h1 className="cover-heading">Type in the name of an existing timer</h1>
+    <h1 className="cover-heading">Type in the name of the timer</h1>
     <br></br>
     <input type="text" name='IDinput' onChange={handleInput}></input>
     <br></br>
