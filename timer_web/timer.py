@@ -19,12 +19,12 @@ app.secret_key = "zOGSyfuncwgt68bgerUx5ctSTf2UXwxBr" #just some random string to
 
 def databaseCreation():
     try: #if database is not found then it will create a database instead with the right tables
-        file = open("roomDB.db","r")
+        file = open(timerStorage.databaseLoc(),"r")
         file.close()
     except FileNotFoundError:
-        file = open("roomDB.db","w") #create the file
+        file = open(timerStorage.databaseLoc(),"w") #create the file
         file.close()
-        connection = sqlite3.connect("roomDB.db") #connects to the new database
+        connection = sqlite3.connect(timerStorage.databaseLoc()) #connects to the new database
         cursor = connection.cursor()
         tableCreate = open("databaseTableCreation.sql","r") #this file stores the sql commands to create the right tables
         tableCreate = tableCreate.readlines()
@@ -40,7 +40,7 @@ def mainPage():
     return render_template("/build/index.html")
 
 @app.route("/")
-def renderPage(): #provides the react page
+def renderPage(): #provnamees the react page
     return mainPage()
 
 @app.route("/serverTime")
@@ -48,30 +48,32 @@ def currentTime(): #gets the current time of the server
     currentDatetime = math.ceil(time.time() * 1000)
     return {"datetime": currentDatetime}
 
-@app.route("/timer/<int:ID>")
-def endTimeTimer(ID): #gets the endtime of a specific timer
-    timer = timerStorage.timer(ID)
+@app.route("/timer/<string:name>")
+def endTimeTimer(name): #gets the endtime of a specific timer
+    timer = timerStorage.timer(name)
     if timer.exist: #if the timer exists
         return {"endTime": timer.endTime}
     else: #nan returned when timer does not exist
         return {"endTime": nan}
 
-@app.route("/timer/<int:ID>/cred", methods=["GET", "POST"])
-def cred(ID): #allows the client to take control of a timer with the right password
+@app.route("/timer/<string:name>/cred", methods=["GET", "POST"])
+def cred(name): #allows the client to take control of a timer with the right password
     if request.method == "POST":
         password = request.form["password"]
-        timer = timerStorage.timer(ID)
-        if timer.controlTimer(password) == True:
-            session["timer"] = ID
-            resp = make_response(str(timer.ID))
-            resp.set_cookie('ID',str(timer.ID))
+        timer = timerStorage.timer(name)
+        if timer.exist: #checks if timer exists
+            if timer.controlTimer(password) == True:
+                session["timer"] = name
+                resp = make_response(str(timer.name))
+                resp.set_cookie('name',str(timer.name))
+            else:
+                resp = make_response("Wrong Password")
         else:
-            resp = make_response("Invalid")
-
+            resp = make_response("Timer Doesn't exist")
         return resp
 
-@app.route("/timer/<int:ID>/start", methods=["GET", "POST"])
-def start(ID): #handles the start and editing of a timer
+@app.route("/timer/<string:name>/start", methods=["GET", "POST"])
+def start(name): #handles the start and editing of a timer
     if session.get("timer"):
         endTime = 0
         #offset = request.form["timeOffSet"]
@@ -100,10 +102,11 @@ def start(ID): #handles the start and editing of a timer
 @app.route("/newTimer", methods=["GET", "POST"]) #handles the creation of a new timer
 def newTimer():
     if request.method == "POST":
-        timer = timerStorage.newTimer(request.form["password"])
-        session["timer"] = timer.ID
-        resp = make_response(str(timer.ID))
-        resp.set_cookie('ID',str(timer.ID))
+        timerName = str(request.form["timerName"])
+        password = str(request.form["password"])
+        timer = timerStorage.newTimer(timerName, password)
+        resp = make_response(str(timer.name))
+        resp.set_cookie('name',str(timer.name))
         return resp
         
 

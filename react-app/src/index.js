@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  //return "http://localhost:5000";
-  return "";
+  return "http://localhost:5000";
+  //return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -163,22 +163,25 @@ function Timer(props){ //gets the end time then formats it in a nice way
 
 
 function TimerPage(props){ //displays the timer as well as anything else relating to the timer
-  
-  const [cookies, setCookie, removeCookie] = useCookies(["ID"]);
-  if(cookies["ID"] == props.ID){ //if the client is in control of the timer (can edit how long the timer times for)
+  const [cookies, setCookie, removeCookie] = useCookies(["name"]);
+  if(cookies["name"] == props.ID){ //if the client is in control of the timer (can edit how long the timer times for)
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
-    <br></br>
-    <h1>Timer number {props.ID}</h1>
-    <br></br>
-    <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
-    <TimerAmount ID={props.ID}/></>;
+    <body class="text-center">
+      <br></br>
+      <h1>Timer name {props.ID}</h1>
+      <br></br>
+      <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
+      <TimerAmount ID={props.ID}/>
+    </body></>;
   }else{ //if the client isn't in control of the timer
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
-    <br></br>
-    <h1>Timer number {props.ID}</h1>
-    <br></br>
-    <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
-    <TimerLogin ID={props.ID} setLoc={props.setLoc} error={props.error} setCookie={setCookie}/></>
+    <body class="text-center">
+      <br></br>
+      <h1>Timer name {props.ID}</h1>
+      <br></br>
+      <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
+      <TimerLogin ID={props.ID} setLoc={props.setLoc} error={props.error} setCookie={setCookie}/>
+    </body></>
   }
 }
 
@@ -186,7 +189,6 @@ function TimerAmount(props){ //used to set how long the timer times for
   const onSubmit = (e) => { //behaviour of sending the form to the server
     e.preventDefault();
     const formData = new FormData(e.target)
-    //formData.append("timeOffSet", TimeOffset());
     axios.post(mainUrl() + "/timer/" + props.ID + "/start", formData, {withCredentials: true})
     .then((response) => {
       console.log(response.data)
@@ -194,13 +196,16 @@ function TimerAmount(props){ //used to set how long the timer times for
     .catch(() => console.log("Didn't post successfully"))
   }
 
-  return <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
-  seconds: <input id="seconds" type="number" name="seconds"></input>
-  minutes: <input id="minutes" type="number" name="minutes"></input>
-  hours: <input id="hours" type="number" name="hours"></input>
-  days: <input id="days" type="number" name="days"></input>
-  weeks: <input id="weeks" type="number" name="weeks"></input><br></br>
-  <button>Start</button></form>
+  return <><body class="text-center">
+    <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
+      seconds: <input id="seconds" type="number" name="seconds"></input>
+      minutes: <input id="minutes" type="number" name="minutes"></input>
+      hours: <input id="hours" type="number" name="hours"></input>
+      days: <input id="days" type="number" name="days"></input>
+      weeks: <input id="weeks" type="number" name="weeks"></input><br></br>
+      <button>Start Timer</button>
+    </form>
+  </body></>
 }
 
 function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
@@ -211,14 +216,16 @@ function Home(props){ //the home page that allows the creation of timer, finding
 
   const [cookies, setCookie, removeCookie] = useCookies(["ID"]);
 
-  return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>New Timer</button>
-  <button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["ID"]})}>Timer in control</button>
-  <br></br>
-  <h1>Type in your timer ID</h1>
-  <br></br>
-  <input type="number" name='IDinput' onChange={handleInput}></input>
-  <br></br>
-  <button onClick={() => props.setLoc({"Loc": "Timer", "ID": Number(chosenID), "error": undefined})}>Done</button></>
+  return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button><button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["ID"]})}>Timer in control</button>
+  <body class="text-center">
+  <main role="main" class="inner cover">
+    <br></br>
+    <h1 class="cover-heading">Type in the name of an existing timer</h1>
+    <br></br>
+    <input type="text" name='IDinput' onChange={handleInput}></input>
+    <br></br>
+    <button onClick={() => props.setLoc({"Loc": "Timer", "ID": String(chosenID), "error": undefined})}>Done</button>
+    </main></body></>
 }
 
 function NewTimer(props){ //creates the new timer
@@ -232,12 +239,17 @@ function NewTimer(props){ //creates the new timer
     .catch(() => console.log("Didn't post successfully"))
   }
 
-  return<><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button><br>
-  </br><form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
-    <h1>New Timer</h1><br></br>
-    <input type="password" id="password" name="password" placeholder="password"></input>
-    <button type="submit">create</button>
-  </form></>
+  return<><body class="text-center">
+    <button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button><br>
+    </br><form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
+      <h1>New Timer</h1><br></br>
+      <p>Timer Name</p><br></br>
+      <input type="text" id="timerName" name="timerName"></input><br></br>
+      <p>Timer Control Password</p><br></br>
+      <input type="password" id="password" name="password" placeholder="password"></input>
+      <button type="submit">create</button>
+    </form>
+  </body></>
 }
 
 function TimerLogin(props){ //allows the user to control the timer if there is a right password provided
@@ -246,27 +258,31 @@ function TimerLogin(props){ //allows the user to control the timer if there is a
     const formData = new FormData(e.target)
     axios.post(mainUrl() + "/timer/" + props.ID + "/cred", formData, {withCredentials: true})
     .then((response) => {
-      if(response.data == "Invalid"){ //if logged in isn't successful
+      if(response.data == "Wrong Password"){ //if logged in isn't successful
         props.setLoc({"Loc": "Timer", "ID": props.ID, "error": "Invalid"})
       }else{ //if logged in is successful
-        props.setCookie("ID", props.ID)
+        props.setCookie("name", props.ID)
       }
     })
     .catch(() => console.log("Didn't post successfully"))
   }
   if(props.error == undefined){//if is for what happens if there isn't or is an error with the password
-    return<><form method="post" name="form" onSubmit={onSubmit}>
-    <h2>Timer Control</h2><br></br>
-    <input type="password" id="password" name="password" placeholder="password"></input><br></br>
-    <button type="submit">control</button>
-    </form></>
+    return<><body class="text-center">
+      <form method="post" name="form" onSubmit={onSubmit}>
+        <h2>Timer Control</h2><br></br>
+        <input type="password" id="password" name="password" placeholder="password"></input><br></br>
+        <button type="submit">control</button>
+      </form>
+    </body></>
   }else{ //if password is incorrect
-    return<><form method="post" name="form" onSubmit={onSubmit}>
-    <h2>Timer Control</h2><br></br>
-    <input type="password" id="password" name="password" placeholder="password"></input><br></br>
-    <button type="submit">control</button><br></br>
-    <small>Invalid password</small>
-    </form></>
+    return<><body class="text-center">
+      <form method="post" name="form" onSubmit={onSubmit}>
+        <h2>Timer Control</h2><br></br>
+        <input type="password" id="password" name="password" placeholder="password"></input><br></br>
+        <button type="submit">control</button><br></br>
+        <small>Invalid password</small>
+      </form>
+    </body></>
   }
 }
 
@@ -284,8 +300,9 @@ function App(){
   }
 }
 
-root.render(
-  <App/>
+root.render( //bootstrap used to make page look better
+  <><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></link>
+    <App/></>
 
 );
 

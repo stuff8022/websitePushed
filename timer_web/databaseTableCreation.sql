@@ -1,5 +1,6 @@
 CREATE TABLE "timers" (
-	"ID"	INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE,
+	"name"	TEXT UNIQUE,
 	"password"	TEXT,
-	"endTime"	INTEGER
+	"endTime"	INTEGER,
+	PRIMARY KEY("name")
 );
