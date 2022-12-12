@@ -4,7 +4,7 @@ from flask import Flask
 from markupsafe import escape
 from flask import request
 from flask import make_response
-from flask import render_template
+from flask import render_template, send_from_directory
 from flask import session
 import sqlite3
 import time
@@ -42,6 +42,10 @@ def mainPage():
 @app.route("/")
 def renderPage(): #provnamees the react page
     return mainPage()
+
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory('./static',"manifest.json")
 
 @app.route("/serverTime")
 def currentTime(): #gets the current time of the server 

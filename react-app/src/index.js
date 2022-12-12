@@ -209,7 +209,7 @@ function TimerAmount(props){ //used to set how long the timer times for
           </tr>
       </table>
       </div>
-      <button>Start Timer</button>
+      <button>Change Timer</button>
     </form>
   </>
 }
@@ -338,7 +338,8 @@ function App(){
 }
 
 root.render( //bootstrap used to make page look better
-  <><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></link>
+  <><title>React Timer</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous"></link>
     <App/></>
 
 );
