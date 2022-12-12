@@ -48,6 +48,11 @@ def currentTime(): #gets the current time of the server
     currentDatetime = math.ceil(time.time() * 1000)
     return {"datetime": currentDatetime}
 
+@app.route("/timer/<string:name>/exist")
+def timerExist(name): #gives true or false for if the specified timer exists
+    timer = timerStorage.timer(name)
+    return {"timerExist": timer.exist}
+
 @app.route("/timer/<string:name>")
 def endTimeTimer(name): #gets the endtime of a specific timer
     timer = timerStorage.timer(name)
@@ -104,9 +109,12 @@ def newTimer():
     if request.method == "POST":
         timerName = str(request.form["timerName"])
         password = str(request.form["password"])
-        timer = timerStorage.newTimer(timerName, password)
-        resp = make_response(str(timer.name))
-        resp.set_cookie('name',str(timer.name))
+        if not(timerExist(timerName)["timerExist"]): #checks if timer name already exists or not
+            timer = timerStorage.newTimer(timerName, password)
+            resp = make_response("Done")
+            resp.set_cookie('name',str(timer.name))
+        else:
+            resp = make_response("Name Exists")
         return resp
         
 

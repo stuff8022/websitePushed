@@ -9,8 +9,8 @@ import { useCookies } from 'react-cookie';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 function mainUrl(){ //just used for development reasons
-  return "http://localhost:5000";
-  //return "";
+  //return "http://localhost:5000";
+  return "";
 }
 
 const getServerComputerDateTime = async (setData) =>{ //returns what the server thinks the time is and the computer thinks the time is
@@ -44,6 +44,7 @@ function TimeOffset(){ //finds the offset between what the computer thinks the t
   useEffect(() =>{
     const refreshTimeOffset = setInterval(() =>{ //Updates to any change to the end time
     getServerComputerDateTime(setData);
+    console.log("ComputerTime")
   }, 1000)
   return () => clearInterval(refreshTimeOffset);
 });
@@ -63,6 +64,7 @@ function EndTime(props){ //returns what the end time is
   useEffect(() =>{
     const refreshEndTime = setInterval(() =>{ //Updates to any change to the end time
       getTimerEndDate(setData, props.ID);
+      console.log("EndTime")
     }, refresh)
     return () => clearInterval(refreshEndTime);
   });
@@ -145,7 +147,22 @@ function DisplayTimeLeft(time){ //makes the value of how long is left of the tim
   presentString = presentString + String(timeLeftBreakdown["hours"]) + " hours, "
   presentString = presentString + String(timeLeftBreakdown["days"]) + " days, "
   presentString = presentString + String(timeLeftBreakdown["weeks"]) + " weeks"
-  return presentString;
+  return <table align="center" cellPadding={15}>
+    <tr>
+      <th>Seconds</th>
+      <th>Minutes</th>
+      <th>Hours</th>
+      <th>Days</th>
+      <th>Weeks</th>
+    </tr>
+    <tr>
+      <td>{String(timeLeftBreakdown["seconds"])}</td>
+      <td>{String(timeLeftBreakdown["minutes"])}</td>
+      <td>{String(timeLeftBreakdown["hours"])}</td>
+      <td>{String(timeLeftBreakdown["days"])}</td>
+      <td>{String(timeLeftBreakdown["weeks"])}</td>
+    </tr>
+  </table>;
 
 }
 
@@ -166,7 +183,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
   const [cookies, setCookie, removeCookie] = useCookies(["name"]);
   if(cookies["name"] == props.ID){ //if the client is in control of the timer (can edit how long the timer times for)
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
-    <body class="text-center">
+    <body className="text-center">
       <br></br>
       <h1>Timer name {props.ID}</h1>
       <br></br>
@@ -175,12 +192,12 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
     </body></>;
   }else{ //if the client isn't in control of the timer
     return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
-    <body class="text-center">
+    <body className="text-center">
       <br></br>
       <h1>Timer name {props.ID}</h1>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
-      <TimerLogin ID={props.ID} setLoc={props.setLoc} error={props.error} setCookie={setCookie}/>
+      <TimerLogin ID={props.ID} setLoc={props.setLoc} setCookie={setCookie}/>
     </body></>
   }
 }
@@ -196,16 +213,119 @@ function TimerAmount(props){ //used to set how long the timer times for
     .catch(() => console.log("Didn't post successfully"))
   }
 
-  return <><body class="text-center">
+  return <>
+    <h2>Change Timer</h2>
     <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
-      seconds: <input id="seconds" type="number" name="seconds"></input>
-      minutes: <input id="minutes" type="number" name="minutes"></input>
-      hours: <input id="hours" type="number" name="hours"></input>
-      days: <input id="days" type="number" name="days"></input>
-      weeks: <input id="weeks" type="number" name="weeks"></input><br></br>
+      <table align="center">
+        <tr>
+          <th>Seconds</th>
+          <th>Minutes</th>
+          <th>Hours</th>
+          <th>Days</th>
+          <th>Weeks</th>
+        </tr>
+        <tr>
+          <td><input id="seconds" type="number" name="seconds"></input></td>
+          <td><input id="minutes" type="number" name="minutes"></input></td>
+          <td><input id="hours" type="number" name="hours"></input></td>
+          <td><input id="days" type="number" name="days"></input></td>
+          <td><input id="weeks" type="number" name="weeks"></input></td>
+        </tr>
+      </table>
       <button>Start Timer</button>
     </form>
+  </>
+}
+function NewTimer(props){ //creates the new timer
+  const [badName, setBadName] = useState("")
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target)
+    axios.post(mainUrl() + "/newTimer", formData, {withCredentials: true})
+    .then((response) => {
+      if(response.data == "Done"){
+        props.setLoc({"Loc": "Timer", "ID": document.getElementById("timerName").value})
+      }else{
+        setBadName("timer name already exists")
+      }
+    })
+    .catch(() => console.log("Didn't post successfully"))
+  }
+
+  return<><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
+  <body className="text-center">
+    <form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
+      <h1>New Timer</h1><br></br>
+      <p>Timer Name</p>
+      <input type="text" id="timerName" name="timerName"></input><br></br><br></br>
+      <p>Timer Password</p>
+      <input type="password" id="password" name="password" placeholder="password"></input>
+      <button type="submit">create</button><br></br>
+      <small>{badName}</small>
+    </form>
   </body></>
+}
+
+function TimerLogin(props){ //allows the user to control the timer if there is a right password provided
+  const [error, setError] = useState("") //the error message
+  const onSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target)
+    axios.post(mainUrl() + "/timer/" + props.ID + "/cred", formData, {withCredentials: true})
+    .then((response) => {
+      if(response.data == "Wrong Password"){ //if logged in isn't successful
+        setError("Invalid password")
+      }else{ //if logged in is successful
+        props.setCookie("name", props.ID)
+      }
+    })
+    .catch(() => console.log("Didn't post successfully"))
+  }
+  return<><body className="text-center">
+    <form method="post" name="form" onSubmit={onSubmit}>
+      <h2>Timer Control</h2><br></br>
+      <input type="password" id="password" name="password" placeholder="password"></input><br></br>
+      <button type="submit">control</button><br></br>
+      <small>{error}</small>
+    </form>
+  </body></>
+}
+
+const checkTimerExist = async (setData, timerID) =>{ //gets the time for the end of the countdown
+  try{
+    const resp = await fetch(mainUrl() +"/timer/" + timerID + "/exist");
+
+    const data = await resp.json();
+
+    setData(data);
+  }catch(err){
+    //alert(err);
+  }
+  
+}
+
+function TimerExist(ID){
+  const [data, setData] = useState({"timerExist": NaN});
+  if(isNaN(data["timerExist"])){
+    checkTimerExist(setData, ID)
+  }
+  console.log(data)
+  console.log(ID)
+  return data["timerExist"];
+}
+
+function TimerExistDecider(props){
+  var timerExist = TimerExist(props.ID);
+  if(timerExist == true){ //checks if timer exists and react accordingly
+    return <TimerPage ID={props.ID} setLoc={props.setLoc}/>
+  }else if(timerExist == false){
+    return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
+    <body className="text-center">
+      <h1>Timer doesn't exist</h1><br></br>
+      <button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button>
+    </body>
+    </>
+  }
 }
 
 function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
@@ -214,77 +334,19 @@ function Home(props){ //the home page that allows the creation of timer, finding
     setID(event.target.value);
   };
 
-  const [cookies, setCookie, removeCookie] = useCookies(["ID"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["name"]);
 
-  return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button><button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["ID"]})}>Timer in control</button>
-  <body class="text-center">
-  <main role="main" class="inner cover">
+  return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button><button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Timer in control</button>
+  <body className="text-center">
     <br></br>
-    <h1 class="cover-heading">Type in the name of an existing timer</h1>
+    <h1 className="cover-heading">Type in the name of an existing timer</h1>
     <br></br>
     <input type="text" name='IDinput' onChange={handleInput}></input>
     <br></br>
-    <button onClick={() => props.setLoc({"Loc": "Timer", "ID": String(chosenID), "error": undefined})}>Done</button>
-    </main></body></>
-}
-
-function NewTimer(props){ //creates the new timer
-  const onSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target)
-    axios.post(mainUrl() + "/newTimer", formData, {withCredentials: true})
-    .then((response) => {
-      props.setLoc({"Loc": "Timer", "ID": response.data, "error": undefined}) //response.data is the ID of the new timer
-    })
-    .catch(() => console.log("Didn't post successfully"))
-  }
-
-  return<><body class="text-center">
-    <button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button><br>
-    </br><form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
-      <h1>New Timer</h1><br></br>
-      <p>Timer Name</p><br></br>
-      <input type="text" id="timerName" name="timerName"></input><br></br>
-      <p>Timer Control Password</p><br></br>
-      <input type="password" id="password" name="password" placeholder="password"></input>
-      <button type="submit">create</button>
-    </form>
+    <button onClick={() => props.setLoc({"Loc": "Timer", "ID": String(chosenID)})}>Done</button>
   </body></>
 }
 
-function TimerLogin(props){ //allows the user to control the timer if there is a right password provided
-  const onSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target)
-    axios.post(mainUrl() + "/timer/" + props.ID + "/cred", formData, {withCredentials: true})
-    .then((response) => {
-      if(response.data == "Wrong Password"){ //if logged in isn't successful
-        props.setLoc({"Loc": "Timer", "ID": props.ID, "error": "Invalid"})
-      }else{ //if logged in is successful
-        props.setCookie("name", props.ID)
-      }
-    })
-    .catch(() => console.log("Didn't post successfully"))
-  }
-  if(props.error == undefined){//if is for what happens if there isn't or is an error with the password
-    return<><body class="text-center">
-      <form method="post" name="form" onSubmit={onSubmit}>
-        <h2>Timer Control</h2><br></br>
-        <input type="password" id="password" name="password" placeholder="password"></input><br></br>
-        <button type="submit">control</button>
-      </form>
-    </body></>
-  }else{ //if password is incorrect
-    return<><body class="text-center">
-      <form method="post" name="form" onSubmit={onSubmit}>
-        <h2>Timer Control</h2><br></br>
-        <input type="password" id="password" name="password" placeholder="password"></input><br></br>
-        <button type="submit">control</button><br></br>
-        <small>Invalid password</small>
-      </form>
-    </body></>
-  }
-}
 
 function App(){
   const [appLoc, setLoc] = useState({"Loc": "Home"}) //this state would be where the user wants to be in the react app
@@ -292,7 +354,7 @@ function App(){
     case "Home":
       return <Home setLoc={setLoc}/>
     case "Timer":
-      return <TimerPage ID={appLoc["ID"]} setLoc={setLoc} error={appLoc["error"]}/>
+      return <TimerExistDecider ID={appLoc["ID"]} setLoc={setLoc}/>
     case "newTimer":
       return <NewTimer setLoc={setLoc}/>
     default:
