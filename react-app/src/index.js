@@ -162,7 +162,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
       <br></br>
       <h1>Timer name: {props.ID}</h1>
       <p>Shows time remaining</p>
-      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing timeEndTime - (serverTime - clientTime) which takes into account time differences between server and client.</p>
+      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing (when timer ends - (serverTime - clientTime)) to take into account time differences between server and client.</p>
       <p>useEffect and setInteval is used to automatically update the timer</p>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
@@ -174,7 +174,7 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
       <br></br>
       <h1>Timer name: {props.ID}</h1>
       <p>Shows time remaining</p>
-      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing timeEndTime - (serverTime - clientTime) which takes into account time differences between server and client.</p>
+      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing (when timer ends - (serverTime - clientTime)) to take into account time differences between server and client.</p>
       <p>useEffect and setInteval is used to automatically update the timer</p>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
