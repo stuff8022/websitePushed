@@ -161,6 +161,9 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
     <body className="text-center">
       <br></br>
       <h1>Timer name: {props.ID}</h1>
+      <p>Shows time remaining</p>
+      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing timeEndTime - (serverTime - clientTime) which takes into account time differences between server and client.</p>
+      <p>useEffect and setInteval is used to automatically update the timer</p>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br><br></br>
       <TimerAmount ID={props.ID}/>
@@ -170,6 +173,9 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
     <body className="text-center">
       <br></br>
       <h1>Timer name: {props.ID}</h1>
+      <p>Shows time remaining</p>
+      <p>Time remaining is calculated from retrieving JSON objects from server, states used to get the JSON objects from asynchronous functions and time remaining is calulated by doing timeEndTime - (serverTime - clientTime) which takes into account time differences between server and client.</p>
+      <p>useEffect and setInteval is used to automatically update the timer</p>
       <br></br>
       <Timer ID={props.ID} setLoc={props.setLoc}/><br></br>
       <TimerLogin ID={props.ID} setLoc={props.setLoc} setCookie={setCookie}/>
@@ -180,16 +186,19 @@ function TimerPage(props){ //displays the timer as well as anything else relatin
 function TimerAmount(props){ //used to set how long the timer times for
   const onSubmit = (e) => { //behaviour of sending the form to the server
     e.preventDefault();
-    const formData = new FormData(e.target)
-    axios.post(mainUrl() + "/timer/" + props.ID + "/start", formData, {withCredentials: true})
-    .then((response) => {
-      console.log(response.data)
-    })
-    .catch(() => console.log("Didn't post successfully"))
+    var timeTogether = document.getElementById("seconds").value + document.getElementById("minutes").value + document.getElementById("hours").value + document.getElementById("days").value + document.getElementById("weeks").value;
+    if(!(timeTogether == 0)){//if statement checks if anything is typed in the inputs so that there won't be 0 time
+      const formData = new FormData(e.target)
+      axios.post(mainUrl() + "/timer/" + props.ID + "/start", formData, {withCredentials: true})
+      .then((response) => {
+        console.log(response.data)
+      })
+      .catch(() => console.log("Didn't post successfully"))
+    }
   }
-
   return <>
-    <h2>Change Timer</h2>
+    <h2>Change Timer</h2><br></br>
+    <p>This will allow you to change the timer duration</p>
     <form action={mainUrl() + "/timer/"+ toString(props.ID) +"/start"} method="post" name="form" encType="multipart/form-data" onSubmit={onSubmit}>
     <div class="col-xs-2">
         <table align="center">
@@ -229,14 +238,14 @@ function NewTimer(props){ //creates the new timer
     .catch(() => console.log("Didn't post successfully"))
   }
 
-  return<><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
-  <body className="text-center">
+  return<><body className="text-center">
     <form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
-      <h1>New Timer</h1><br></br>
+      <h1>New Timer</h1>
+      <p>This will allow you to create your own timer, name and salted hashed password is stored in SQLlite database</p>
       <p>Timer Name</p>
-      <input type="text" id="timerName" name="timerName"></input><br></br><br></br>
+      <input type="text" id="timerName" name="timerName"></input>
       <p>Timer Password</p>
-      <input type="password" id="password" name="password" placeholder="password"></input>
+      <input type="password" id="password" name="password"></input><br></br>
       <button type="submit">create</button><br></br>
       <small>{badName}</small>
     </form>
@@ -261,6 +270,7 @@ function TimerLogin(props){ //allows the user to control the timer if there is a
   return<><body className="text-center">
     <form method="post" name="form" onSubmit={onSubmit}>
       <h2>Timer Control</h2><br></br>
+      <p>By typing in the password you would be able to control the duration of the timer</p><br></br>
       <input type="password" id="password" name="password" placeholder="password"></input><br></br>
       <button type="submit">control</button><br></br>
       <small>{error}</small>
@@ -294,10 +304,10 @@ function TimerExistDecider(props){
   if(timerExist == true){ //checks if timer exists and react accordingly
     return <TimerPage ID={props.ID} setLoc={props.setLoc}/>
   }else if(timerExist == false){
-    return <><button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
+    return <>
     <body className="text-center">
       <h1>Timer doesn't exist</h1><br></br>
-      <button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button>
+      <button onClick={() => props.setLoc({"Loc": "Home"})}>Home</button>
     </body>
     </>
   }
@@ -306,20 +316,28 @@ function TimerExistDecider(props){
 function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
   const [chosenID,setID] = useState("")
   const handleInput = event => {
-    setID(event.target.value);
+    console.log(event.target.value == "")
+    if(event.target.value != ""){ //checks if something is type in
+      setID(event.target.value);
+    }
   };
 
   const [cookies, setCookie, removeCookie] = useCookies(["name"]);
 
-  return <><button onClick={() => props.setLoc({"Loc": "newTimer"})}>Create Timer</button><button onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Timer in control</button>
-  <body className="text-center">
-    <br></br>
-    <h1 className="cover-heading">Type in the name of the timer</h1>
-    <br></br>
+  return <><body className="text-center">
+    <h1>Type in the name of an existing timer</h1>
+    <p>This will bring you to a specified already existing timer stored in an SQLlite database. Will use react states to emulate going to another page</p>
     <input type="text" name='IDinput' onChange={handleInput}></input>
     <br></br>
     <button onClick={() => props.setLoc({"Loc": "Timer", "ID": String(chosenID)})}>Done</button>
-  </body></>
+  </body><br></br>
+  <NewTimer setLoc={props.setLoc}/>
+  <br></br>
+  <body className="text-center">
+    <p>Already have your own timer?</p>
+    <a onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Click here to go to the timer your logged in on</a>
+  </body>
+  </>
 }
 
 
