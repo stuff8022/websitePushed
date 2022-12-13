@@ -324,7 +324,6 @@ function CheckName(Name, props){
 function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
   const [chosenID,setID] = useState("")
   const handleInput = event => {
-    console.log(event.target.value == "")
     if(event.target.value != ""){ //checks if something is type in
       setID(event.target.value);
     }
