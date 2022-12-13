@@ -227,15 +227,17 @@ function NewTimer(props){ //creates the new timer
   const onSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target)
-    axios.post(mainUrl() + "/newTimer", formData, {withCredentials: true})
-    .then((response) => {
-      if(response.data == "Done"){
-        props.setLoc({"Loc": "Timer", "ID": document.getElementById("timerName").value})
-      }else{
-        setBadName("timer name already exists")
-      }
-    })
-    .catch(() => console.log("Didn't post successfully"))
+    if(document.getElementById("timerName").value != ""){
+      axios.post(mainUrl() + "/newTimer", formData, {withCredentials: true})
+      .then((response) => {
+        if(response.data == "Done"){
+          props.setLoc({"Loc": "Timer", "ID": document.getElementById("timerName").value})
+        }else{
+          setBadName("timer name already exists")
+        }
+      })
+      .catch(() => console.log("Didn't post successfully"))
+    }
   }
 
   return<><body className="text-center">
@@ -313,6 +315,12 @@ function TimerExistDecider(props){
   }
 }
 
+function CheckName(Name, props){
+  if(Name != ""){
+    props.setLoc({"Loc": "Timer", "ID": String(Name)})
+  }
+}
+
 function Home(props){ //the home page that allows the creation of timer, finding the timer your in control of and finding a specific timer
   const [chosenID,setID] = useState("")
   const handleInput = event => {
@@ -329,7 +337,7 @@ function Home(props){ //the home page that allows the creation of timer, finding
     <p>This will bring you to a specified already existing timer stored in an SQLlite database. Will use react states to emulate going to another page</p>
     <input type="text" name='IDinput' onChange={handleInput}></input>
     <br></br>
-    <button onClick={() => props.setLoc({"Loc": "Timer", "ID": String(chosenID)})}>Done</button>
+    <button onClick={() => CheckName(chosenID, props)}>Done</button>
   </body><br></br>
   <NewTimer setLoc={props.setLoc}/>
   <br></br>

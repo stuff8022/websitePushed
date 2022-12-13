@@ -115,6 +115,7 @@ def newTimer():
         password = str(request.form["password"])
         if not(timerExist(timerName)["timerExist"]): #checks if timer name already exists or not
             timer = timerStorage.newTimer(timerName, password)
+            session["timer"] = timerName
             resp = make_response("Done")
             resp.set_cookie('name',str(timer.name))
         else:
