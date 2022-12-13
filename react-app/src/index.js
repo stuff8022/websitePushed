@@ -335,7 +335,7 @@ function Home(props){ //the home page that allows the creation of timer, finding
   <br></br>
   <body className="text-center">
     <p>Already have your own timer?</p>
-    <a onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Click here to go to the timer your logged in on</a>
+    <a href="javascript:void(0);" onClick={() => props.setLoc({"Loc": "Timer", "ID": cookies["name"]})}>Click here to go to the timer your logged in on</a>
   </body>
   </>
 }
