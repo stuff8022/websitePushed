@@ -243,7 +243,7 @@ function NewTimer(props){ //creates the new timer
   return<><body className="text-center">
     <form action={mainUrl() + "/newTimer"} method="post" name="form" onSubmit={onSubmit}>
       <h1>New Timer</h1>
-      <p>This will allow you to create your own timer, name and salted hashed password is stored in SQLlite database</p>
+      <p>This will allow you to create your own timer, the name and the salted hashed password is stored in a SQLlite database</p>
       <p>Timer Name</p>
       <input type="text" id="timerName" name="timerName"></input>
       <p>Timer Password</p>
@@ -332,6 +332,8 @@ function Home(props){ //the home page that allows the creation of timer, finding
   const [cookies, setCookie, removeCookie] = useCookies(["name"]);
 
   return <><body className="text-center">
+    <p>This site demonstrates using React to create a single page application.</p>
+    <p>The site allows a user to create and maintain password protected timers.</p>
     <h1>Type in the name of an existing timer</h1>
     <p>This will bring you to a specified already existing timer stored in an SQLlite database. Will use react states to emulate going to another page</p>
     <input type="text" name='IDinput' onChange={handleInput}></input>
