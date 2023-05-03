@@ -47,8 +47,16 @@ def renderPage(): #provnamees the react page
 def manifest():
     return send_from_directory('./static',"manifest.json")
 
+@app.route("/bencancode")
+def bencancode():
+    return render_template("/bencancode/public/index.html")
+
+@app.route("/bencancodeIntroduction")
+def bencancodeIntro():
+    return render_template("bencancodeIntro.html")
+
 @app.route("/serverTime")
-def currentTime(): #gets the current time of the server 
+def currentTime(): #gets the current time of the server
     currentDatetime = math.ceil(time.time() * 1000)
     return {"datetime": currentDatetime}
 
@@ -121,7 +129,7 @@ def newTimer():
         else:
             resp = make_response("Name Exists")
         return resp
-        
+
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0',port=5000)
